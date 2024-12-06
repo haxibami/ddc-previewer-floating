@@ -104,6 +104,7 @@ function View:_open(item)
         max_height = max_height,
         max_width = max_width,
       })
+      vim.api.nvim_set_option_value('filetype', 'markdown', { buf = self.bufnr })
       contents = vim.api.nvim_buf_get_lines(self.bufnr, 0, -1, true) --[[@as string[] ]]
     end
     context.height = #contents
