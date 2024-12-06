@@ -98,17 +98,17 @@ function View:_open(item)
     if #contents == 0 then
       return
     end
-    vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, true, contents)
+    local width, height = vim.lsp.util._make_floating_popup_size(contents,
+      { max_width = max_width, max_height = max_height })
     if previewer.kind == "markdown" then
-      vim.lsp.util.stylize_markdown(self.bufnr, contents, {
-        max_height = max_height,
-        max_width = max_width,
-      })
-      vim.api.nvim_set_option_value('filetype', 'markdown', { buf = self.bufnr })
-      contents = vim.api.nvim_buf_get_lines(self.bufnr, 0, -1, true) --[[@as string[] ]]
+      contents = vim.lsp.util._normalize_markdown(contents, { width = width })
+      vim.bo[self.bufnr].filetype = "markdown"
+      vim.treesitter.start(self.bufnr)
+      vim.bo[self.bufnr].modifiable = true
     end
-    context.height = #contents
-    context.width = utils.max(contents, vim.api.nvim_strwidth)
+    vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, true, contents)
+    context.width = width
+    context.height = height
     self:_win_open(context)
   else
     -- help or command
